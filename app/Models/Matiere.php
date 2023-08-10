@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Matiere extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['name', 'description','photo_url'];
 
     public function note()
     {

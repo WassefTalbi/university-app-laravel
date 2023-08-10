@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Etudiant;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class EtudiantController extends Controller
@@ -26,8 +27,30 @@ class EtudiantController extends Controller
      */
     public function store(Request $request)
     {
-
-        $etudiant = Etudiant::create($request->all());
+        $request->validate([
+            'file' => 'required|mimes:jpeg,png,pdf|max:2048',
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'birthday' => [
+                'required',
+                'date',
+                'before_or_equal:' . Carbon::now()->format('Y-m-d'),
+            ],
+            'cin' => [
+                'required',
+                'string',
+                'unique:etudiants', 
+                'regex:/^\d{8}$/',
+            ],
+        ]);
+        $file = $request->file('file');
+        $filePath = $file->store('uploads'); // Store the file in storage/app/uploads
+    
+        $etudiantData = $request->except('file'); // Remove the file field from the request data
+        $etudiantData['photo_url'] = $filePath; // Add the file URL to the etudiant data
+    
+        $etudiant = Etudiant::create($etudiantData);
+       // $etudiant = Etudiant::create($request->all()); 
         return response()->json($etudiant, 201);
     }
 

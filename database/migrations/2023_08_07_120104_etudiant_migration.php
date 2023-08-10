@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('firstname');
             $table->string('lastname');
             $table->date('birthday');
+            $table->string('photo_url');
 
 
             $table->timestamps();
