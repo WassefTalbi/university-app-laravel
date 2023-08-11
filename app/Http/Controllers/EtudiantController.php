@@ -39,18 +39,18 @@ class EtudiantController extends Controller
             'cin' => [
                 'required',
                 'string',
-                'unique:etudiants', 
+                'unique:etudiants',
                 'regex:/^\d{8}$/',
             ],
         ]);
         $file = $request->file('file');
-        $filePath = $file->store('uploads'); // Store the file in storage/app/uploads
-    
+        $originalFileName = $file->getClientOriginalName(); // Get the original file name
+
+        $filePath = $file->storeAs('public/uploads', $originalFileName); // Store the file in storage/app/uploads with the original name
+
         $etudiantData = $request->except('file'); // Remove the file field from the request data
-        $etudiantData['photo_url'] = $filePath; // Add the file URL to the etudiant data
-    
+        $etudiantData['photo_url'] = $originalFileName;
         $etudiant = Etudiant::create($etudiantData);
-       // $etudiant = Etudiant::create($request->all()); 
         return response()->json($etudiant, 201);
     }
 

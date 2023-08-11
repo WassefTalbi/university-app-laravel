@@ -50,3 +50,6 @@ Route::get('notes', [NoteController::class, 'index'])->name('notes.index');
 Route::get('notes/generate-note-file/{idEtudiant}', [NoteController::class, 'generateEtudiantNotesFile'])->name('notes.generateEtudiantNotesFile');
 Route::put('notes/{idNote}', [NoteController::class, 'modifyNote'])->name('notes.modifyNote');
 Route::delete('notes/{idNote}', [NoteController::class, 'destroy'])->name('notes.destroy');
+
+
+Route::get('images/{filename}', [MatiereController::class, 'getImage'])->name('matieres.getImage');

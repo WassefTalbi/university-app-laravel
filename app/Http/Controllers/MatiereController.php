@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Matiere;
 use App\Models\Note;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MatiereController extends Controller
 {
@@ -27,9 +28,23 @@ class MatiereController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'file' => 'required|mimes:jpeg,png,pdf|max:2048',
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+        ]);
+        $file = $request->file('file');
+        $originalFileName = $file->getClientOriginalName(); // Get the original file name
 
-        $matieres = Matiere::create($request->all());
-        return response()->json($matieres, 201);
+        $filePath = $file->storeAs('public/uploads', $originalFileName); // Store the file in storage/app/uploads with the original name
+
+        $matiereData = $request->except('file'); // Remove the file field from the request data
+        $matiereData['photo_url'] = $originalFileName; //basename($file->getClientOriginalName()); // Get the photo's name
+
+        $matiere = Matiere::create($matiereData);
+
+        //$matieres = Matiere::create($request->all());
+        return response()->json($matiere, 201);
     }
 
     /**
@@ -83,5 +98,20 @@ class MatiereController extends Controller
         $notes = Note::where('matiere_id', $idMatiere)
             ->get();
         return response()->json($notes, 200);
+    }
+
+
+    public function getImage($filename)
+    {
+        $imagePath = "public/uploads/{$filename}";
+
+        if (!Storage::exists($imagePath)) {
+            return response()->json(['error' => 'Image not found'], 404);
+        }
+
+        $image = Storage::get($imagePath);
+        $mimeType = Storage::mimeType($imagePath);
+
+        return response($image)->header('Content-Type', $mimeType);
     }
 }
