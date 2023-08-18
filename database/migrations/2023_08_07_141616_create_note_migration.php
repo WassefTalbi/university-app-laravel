@@ -16,10 +16,12 @@ return new class extends Migration
         Schema::create('notes', function (Blueprint $table) {
             $table->id();
             $table->float('score');
+            $table->float('name');
             $table->unsignedBigInteger('etudiant_id');
             $table->foreign('etudiant_id')->references('id')->on('etudiants')->onDelete('cascade');
             $table->unsignedBigInteger('matiere_id');
             $table->foreign('matiere_id')->references('id')->on('matieres')->onDelete('cascade');
+           
             //$table->foreignId('etudiant_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

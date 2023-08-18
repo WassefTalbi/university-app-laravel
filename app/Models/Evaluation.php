@@ -5,16 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Note extends Model
+class Evaluation extends Model
 {
     use HasFactory;
-    protected $fillable = ['score','name','etudiant_id','matiere_id'];
+    protected $fillable = ['name','pourcentage','matiere_id'];
 
-    public function etudiant(){
-        return $this->belongsTo(Etudiant::class);
-    }
+  
     public function matiere(){
         return $this->belongsTo(Matiere::class);
     }
-
 }

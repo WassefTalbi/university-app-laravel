@@ -18,6 +18,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('description');
             $table->string('photo_url');
+            $table->integer('credit');
+            $table->integer('charge_total');
+            $table->float('coefficient');
+            $table->unsignedBigInteger('module_id');
+            $table->foreign('module_id')->references('id')->on('modules')->onDelete('cascade');
             $table->timestamps();
         });
     }

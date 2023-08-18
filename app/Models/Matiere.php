@@ -8,11 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Matiere extends Model
 {
     use HasFactory;
-    protected $fillable = ['name', 'description','photo_url'];
+    protected $fillable = ['name', 'description', 'photo_url','credit','charge_total','coefficient','module_id'];
 
-    public function note()
+    public function notes()
     {
-        return $this->hasOne(Note::class);
+        return $this->hasMany(Note::class);
+    }
+    public function classrooms() {
+        return $this->belongsToMany(Classroom::class)->using(ClassroomMatiere::class);
+    }
+    public function module(){
+        return $this->belongsTo(Module::class);
     }
 }
- 

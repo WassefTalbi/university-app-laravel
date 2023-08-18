@@ -15,7 +15,9 @@ class EtudiantController extends Controller
      */
     public function index()
     {
-        $etudiants = Etudiant::all();
+        $etudiants = Etudiant::query()->orderBy('id')->paginate(1);
+
+        //$etudiants = Etudiant::all();
         return response()->json($etudiants);
     }
 
@@ -45,9 +47,7 @@ class EtudiantController extends Controller
         ]);
         $file = $request->file('file');
         $originalFileName = $file->getClientOriginalName(); // Get the original file name
-
         $filePath = $file->storeAs('public/uploads', $originalFileName); // Store the file in storage/app/uploads with the original name
-
         $etudiantData = $request->except('file'); // Remove the file field from the request data
         $etudiantData['photo_url'] = $originalFileName;
         $etudiant = Etudiant::create($etudiantData);

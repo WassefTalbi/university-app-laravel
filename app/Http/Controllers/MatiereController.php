@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Matiere;
+use App\Models\Module;
 use App\Models\Note;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -19,28 +20,42 @@ class MatiereController extends Controller
         $matieres = Matiere::all();
         return response()->json($matieres);
     }
+    
 
+    
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
+     * @param  int  $idModule
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store($idModule, Request $request)
     {
+
         $request->validate([
             'file' => 'required|mimes:jpeg,png,pdf|max:2048',
             'name' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
+            'description' => 'required|string|max:255', 
+            'credit' => 'required|int|max:255',
+            'coefficient' => 'required|int|max:255', 
+            'charge_total' => 'required|int|max:255',
+           
         ]);
+        $module = Module::find($idModule);
+
+        if (!$module) {
+            // Handle case when etudiant or matiere is not found
+            return response()->json(['error' => 'module not found'], 404);
+        }
         $file = $request->file('file');
         $originalFileName = $file->getClientOriginalName(); // Get the original file name
 
         $filePath = $file->storeAs('public/uploads', $originalFileName); // Store the file in storage/app/uploads with the original name
 
-        $matiereData = $request->except('file'); // Remove the file field from the request data
-        $matiereData['photo_url'] = $originalFileName; //basename($file->getClientOriginalName()); // Get the photo's name
-
+        $matiereData = $request->except('file'); 
+        $matiereData['photo_url'] = $originalFileName; 
+        $matiereData['module_id'] = $idModule; 
         $matiere = Matiere::create($matiereData);
 
         //$matieres = Matiere::create($request->all());
@@ -100,6 +115,19 @@ class MatiereController extends Controller
         return response()->json($notes, 200);
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $idMatiere
+     * @return \Illuminate\Http\Response
+     */
+    public function showNotesOfMatiereOfClassroom($idMatiere)
+    {
+        // $notes = Note::where('matiere_id', $idMatiere)
+        //     ->get();
+        $notes = Matiere::with("notes.etudiant")->find($idMatiere);
+        return response()->json($notes, 200);
+    }
 
     public function getImage($filename)
     {
