@@ -13,11 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('specialites', function (Blueprint $table) {
+        Schema::create('degres', function (Blueprint $table) {
             $table->id();
-            $table->string('type');
-            $table->string('name');
-            $table->timestamps();
+            $table->integer('niveau');
+            $table->integer('semestre');
+            $table->unsignedBigInteger('specialite_id');
+            $table->foreign('specialite_id')->references('id')->on('specialites')->onDelete('cascade');
+            
         });
     }
 
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('specialites');
+        Schema::dropIfExists('degres');
     }
 };

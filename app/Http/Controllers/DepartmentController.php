@@ -20,6 +20,7 @@ class DepartmentController extends Controller
     public function index()
     {
         $departments = Department::with("classrooms")->get();
+
         return response()->json($departments);
     }
 

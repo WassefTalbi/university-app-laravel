@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Classroom;
+use App\Models\Degre;
 use App\Models\Matiere;
 use App\Models\Module;
 use App\Models\Specialite;
@@ -18,11 +19,11 @@ class SpecialiteController extends Controller
      */
     public function index()
     {
-        $specialites = Specialite::all();
+        $specialites = Specialite::with("degres")->get();
         return response()->json($specialites);
     }
- 
-  
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -33,12 +34,12 @@ class SpecialiteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            
+
             'type' => 'required|string|max:255',
             'niveau' => 'required|int|max:255',
             'semestre' => 'required|int|max:255',
         ]);
-        $specialite = Specialite::create($request->all());  
+        $specialite = Specialite::create($request->all());
         return response()->json($specialite, 201);
     }
 
@@ -63,13 +64,13 @@ class SpecialiteController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    { 
-         $request->validate([           
+    {
+        $request->validate([
             'type' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'niveau' => 'required|int|max:255',
             'semestre' => 'required|int|max:255',
-     ]);
+        ]);
         $specialite = Specialite::findOrFail($id);
         $specialite->update($request->all());
         return response()->json($specialite, 200);
@@ -100,9 +101,21 @@ class SpecialiteController extends Controller
             ->get();
         return response()->json($modules, 200);
     }
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $idDegre
+     * @return \Illuminate\Http\Response
+     */
+    public function generatePlanDEtude($idDegre)
 
+    {
+        $degre = Degre::find($idDegre);
+        if (!$degre) {
+            return response()->json(['error' => 'Degree not found'], 404);
+        }
+        $plan = $degre->load('modules.matieres.evaluations');
 
-
-
+        return response()->json($plan, 200);
+    }
 }
-

@@ -38,7 +38,7 @@ Route::get('/users', function (Request $request) {
 Route::post('etudiants', [EtudiantController::class, 'store'])->name('etudiants.store');
 Route::get('etudiants', [EtudiantController::class, 'index'])->name('etudiants.index');
 Route::get('etudiants/{idEtudiant}', [EtudiantController::class, 'show'])->name('etudiants.show');
-Route::put('etudiants/{idEtudiant}', [EtudiantController::class, 'update'])->name('etudiants.update');
+Route::post('etudiants/{idEtudiant}', [EtudiantController::class, 'update'])->name('etudiants.update');
 Route::delete('etudiants/{idEtudiant}', [EtudiantController::class, 'destroy'])->name('etudiants.destroy');
 
 //route for matiere
@@ -46,7 +46,7 @@ Route::post('matieres/{idModule}', [MatiereController::class, 'store'])->name('m
 Route::get('matieres', [MatiereController::class, 'index'])->name('matieres.index');
 Route::get('matieres/{idMatiere}', [MatiereController::class, 'show'])->name('matieres.show');
 Route::get('matieres/notes-of-matiere/{idMatiere}', [MatiereController::class, 'showNotesOfMatiere'])->name('matieres.showNotesOfMatiere');
-Route::put('matieres/{id}', [MatiereController::class, 'update'])->name('matieres.update');
+Route::post('matieres-modifier/{id}', [MatiereController::class, 'update'])->name('matieres.update');
 Route::delete('matieres/{id}', [MatiereController::class, 'destroy'])->name('matieres.destroy');
 Route::get('matieres/notes-of-matiere-of-classroom/{idMatiere}', [MatiereController::class, 'showNotesOfMatiereOfClassroom'])->name('matieres.showNotesOfMatiereOfClassroom');
 
@@ -70,6 +70,7 @@ Route::put('modules/{idModule}', [ModuleController::class, 'update'])->name('mod
 Route::delete('modules/{idModule}', [ModuleController::class, 'destroy'])->name('modules.destroy');
 
 //route for specialite
+Route::get('specialites/generatePlanDEtude-of-specialite/{idDegre}', [SpecialiteController::class, 'generatePlanDEtude'])->name('specialites.generatePlanDEtude');
 Route::post('specialites', [SpecialiteController::class, 'store'])->name('specialites.store');
 Route::get('specialites', [SpecialiteController::class, 'index'])->name('specialites.index');
 Route::get('specialites/{idSpecialite}', [SpecialiteController::class, 'show'])->name('specialites.show');
@@ -77,12 +78,15 @@ Route::get('specialites/modules-of-specialite/{idSpecialite}', [SpecialiteContro
 Route::put('specialites/{idSpecialite}', [SpecialiteController::class, 'update'])->name('specialites.update');
 Route::delete('specialites/{idSpecialite}', [SpecialiteController::class, 'destroy'])->name('specialites.destroy');
 
+
 //route for classroom
 Route::post('classrooms/{idDepartment}', [ClassroomController::class, 'store'])->name('classrooms.store');
 Route::get('classrooms', [ClassroomController::class, 'index'])->name('classrooms.index');
+Route::post('class/affect-matiere', [ClassroomController::class, 'affectMatiereToClass'])->name('classrooms.affectMatiereToClass');
 Route::get('classrooms/{idClassroom}', [ClassroomController::class, 'show'])->name('classrooms.show');
 Route::put('classrooms/{idClassroom}', [ClassroomController::class, 'update'])->name('classrooms.update');
 Route::delete('classrooms/{idClassroom}', [ClassroomController::class, 'destroy'])->name('classrooms.destroy');
+Route::get('classrooms/{idClassroom}/matieres', [ClassroomController::class, 'showMatieresOfClassroom'])->name('classrooms.showMatieresOfClassroom');
 
 //route for department
 Route::post('departments', [DepartmentController::class, 'store'])->name('departments.store');

@@ -15,9 +15,13 @@ class Matiere extends Model
         return $this->hasMany(Note::class);
     }
     public function classrooms() {
-        return $this->belongsToMany(Classroom::class)->using(ClassroomMatiere::class);
+        return $this->belongsToMany(Classroom::class);
     }
     public function module(){
         return $this->belongsTo(Module::class);
     }
+    public function evaluations()
+{
+    return $this->hasMany(Evaluation::class);
+} 
 }

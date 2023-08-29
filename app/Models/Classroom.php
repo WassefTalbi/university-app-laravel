@@ -11,7 +11,7 @@ class Classroom extends Model
     protected $fillable = ['ref', 'anneScolaire', 'department_id'];
     public function matieres()
     {
-        return $this->belongsToMany(Matiere::class)->using(ClassroomMatiere::class);
+        return $this->belongsToMany(Matiere::class);
     }
 
 

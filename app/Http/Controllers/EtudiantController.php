@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Etudiant;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class EtudiantController extends Controller
 {
@@ -15,7 +16,7 @@ class EtudiantController extends Controller
      */
     public function index()
     {
-        $etudiants = Etudiant::query()->orderBy('id')->paginate(1);
+        $etudiants = Etudiant::query()->orderBy('id')->paginate(2);
 
         //$etudiants = Etudiant::all();
         return response()->json($etudiants);
@@ -29,8 +30,9 @@ class EtudiantController extends Controller
      */
     public function store(Request $request)
     {
+
         $request->validate([
-            'file' => 'required|mimes:jpeg,png,pdf|max:2048',
+            'file' => 'required|file|mimes:jpeg,png,pdf|max:2048',
             'firstname' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
             'birthday' => [
@@ -46,10 +48,11 @@ class EtudiantController extends Controller
             ],
         ]);
         $file = $request->file('file');
-        $originalFileName = $file->getClientOriginalName(); // Get the original file name
-        $filePath = $file->storeAs('public/uploads', $originalFileName); // Store the file in storage/app/uploads with the original name
-        $etudiantData = $request->except('file'); // Remove the file field from the request data
+        $originalFileName = $file->getClientOriginalName(); 
+        $filePath = $file->storeAs('public/uploads', $originalFileName); 
+        $etudiantData = $request->except('file'); 
         $etudiantData['photo_url'] = $originalFileName;
+
         $etudiant = Etudiant::create($etudiantData);
         return response()->json($etudiant, 201);
     }
@@ -74,9 +77,38 @@ class EtudiantController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
+    {   
         $etudiant = Etudiant::findOrFail($id);
-        $etudiant->update($request->all());
+        $request->validate([
+            'firstname' => 'required|string|max:255',
+            'lastname' => 'required|string|max:255',
+            'birthday' => [
+                'required',
+                'date',
+                'before_or_equal:' . Carbon::now()->format('Y-m-d'),
+            ],
+            'cin' => [
+                'required',
+                'string',
+                'regex:/^\d{8}$/',
+            ],
+        ]);
+        if($request->hasFile("file")){
+          
+            Storage::delete('uploads/' . $etudiant->photo_url);
+   
+                $file = $request->file('file');
+                $originalFileName = $file->getClientOriginalName(); 
+                $filePath = $file->storeAs('public/uploads', $originalFileName); 
+                $etudiant = $request->except('file'); 
+                $etudiant['photo_url'] = $originalFileName;
+            }
+
+        
+
+        // Update other fields
+        $etudiant->update($request->except(['file']));
+
         return response()->json($etudiant, 200);
     }
 

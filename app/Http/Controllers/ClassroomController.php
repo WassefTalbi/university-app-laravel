@@ -39,6 +39,7 @@ class ClassroomController extends Controller
 
             'ref' => 'required|string|max:255',
             'anneScolaire' => 'required|string|max:255',
+          
         ]);
         $department = Department::find($idDepartment);
 
@@ -49,7 +50,7 @@ class ClassroomController extends Controller
         $classroomData = $request;
         $classroomData['department_id'] = $idDepartment;
         $classroom = Classroom::create($classroomData->all());
-        return response()->json($classroom, 201);
+        return response()->json($request, 201);
     }
 
     /**
@@ -95,4 +96,41 @@ class ClassroomController extends Controller
         $classroom->delete();
         return response()->json(null, 204);
     }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showMatieresOfClassroom($id)
+    {
+        $classroom = Classroom::with('matieres')->findOrFail($id);
+
+        return response()->json($classroom);
+    }
+    
+    /**
+     * Display the specified resource.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function affectMatiereToClass(Request $request)
+    {
+        //  Validate the request data as needed
+        $request->validate([
+            'classroom_id' => 'required|exists:classrooms,id',
+            'matiere_id' => 'required|array',
+            'matiere_id.*' => 'exists:matieres,id',
+        ]);
+
+        $classroom = Classroom::findOrFail($request->input('classroom_id'));
+        $matiereIds = $request->input('matiere_id');
+
+        // Sync the matieres with the classroom
+        $classroom->matieres()->sync($matiereIds);
+
+        return response()->json(['message' => 'Subjects assigned to classroom successfully']);
+}
 }

@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class Specialite extends Model
 {
     use HasFactory;
-    protected $fillable = ['type', 'name','niveau','semestre'];
+    protected $fillable = ['type', 'name'];
    
 
-    public function modules() {
-        return $this->hasMany(Module::class);
+    public function degres() {
+        return $this->hasMany(Degre::class);
     }
+
 }

@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Module extends Model
 {
     use HasFactory;
-    protected $fillable = ['ref','name','credit','coefficient','nature','specialite_id'];
+    protected $fillable = ['ref','name','credit','coefficient','nature','degre_id'];
 
    
-    public function matiere(){
+    public function matieres(){
         return $this->hasMany(Matiere::class);
     }
-    public function specialite(){
-        return $this->belongsTo(Specialite::class);
+    
+    public function degre(){
+        return $this->belongsTo(Degre::class);
     }
 }

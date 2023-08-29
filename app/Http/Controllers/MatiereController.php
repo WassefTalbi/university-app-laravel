@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Evaluation;
 use App\Models\Matiere;
 use App\Models\Module;
 use App\Models\Note;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,12 +19,12 @@ class MatiereController extends Controller
      */
     public function index()
     {
-        $matieres = Matiere::all();
+        $matieres = Matiere::with('evaluations')->get();
         return response()->json($matieres);
     }
-    
 
-    
+
+
     /**
      * Store a newly created resource in storage.
      *
@@ -36,29 +38,31 @@ class MatiereController extends Controller
         $request->validate([
             'file' => 'required|mimes:jpeg,png,pdf|max:2048',
             'name' => 'required|string|max:255',
-            'description' => 'required|string|max:255', 
+            'description' => 'required|string|max:255',
             'credit' => 'required|int|max:255',
-            'coefficient' => 'required|int|max:255', 
+            'coefficient' => 'required|int|max:255',
             'charge_total' => 'required|int|max:255',
-           
+            'evaluations' => 'required|array',
+
+
         ]);
         $module = Module::find($idModule);
 
         if (!$module) {
-            // Handle case when etudiant or matiere is not found
+         
             return response()->json(['error' => 'module not found'], 404);
         }
         $file = $request->file('file');
-        $originalFileName = $file->getClientOriginalName(); // Get the original file name
-
-        $filePath = $file->storeAs('public/uploads', $originalFileName); // Store the file in storage/app/uploads with the original name
-
-        $matiereData = $request->except('file'); 
-        $matiereData['photo_url'] = $originalFileName; 
-        $matiereData['module_id'] = $idModule; 
+        $originalFileName = $file->getClientOriginalName(); 
+        $filePath = $file->storeAs('public/uploads', $originalFileName); 
+        $matiereData = $request->except('file');
+        $matiereData['photo_url'] = $originalFileName;
+        $matiereData['module_id'] = $idModule;
         $matiere = Matiere::create($matiereData);
-
-        //$matieres = Matiere::create($request->all());
+        foreach ($request->input('evaluations') as $evaluationData) {
+            $matiere->evaluations()->create($evaluationData);
+        }
+     
         return response()->json($matiere, 201);
     }
 
@@ -84,9 +88,39 @@ class MatiereController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $matieres = Matiere::findOrFail($id);
-        $matieres->update($request->all());
-        return response()->json($matieres, 200);
+        $matiere = Matiere::findOrFail($id);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'credit' => 'required|int|max:255',
+            'coefficient' => 'required|int|max:255',
+            'charge_total' => 'required|int|max:255',
+            'evaluations' => 'array', 
+
+
+        ]);
+        if ($request->hasFile("file")) {
+            Storage::delete('uploads/' . $matiere->photo_url);
+            $file = $request->file('file');
+            $originalFileName = $file->getClientOriginalName();
+            $filePath = $file->storeAs('public/uploads', $originalFileName);
+            $matiere = $request->except('file');
+            $matiere['photo_url'] = $originalFileName;
+        }
+        $matiere->update($request->except(['file']));
+        if ($request->has('evaluations')) {
+            foreach ($request->input('evaluations') as $index => $evaluationData) {
+                if (isset($evaluationData['id'])) {
+                    // Update existing evaluation
+                    $evaluation = Evaluation::findOrFail($evaluationData['id']);
+                    $evaluation->update($evaluationData);
+                } else {
+                    // Create new evaluation
+                    $matiere->evaluations()->create($evaluationData);
+                }
+            }
+        }
+        return response()->json($matiere, 200);
     }
 
     /**
@@ -97,8 +131,10 @@ class MatiereController extends Controller
      */
     public function destroy($id)
     {
-        $matieres = Matiere::findOrFail($id);
-        $matieres->delete();
+        $matiere = Matiere::findOrFail($id);      
+        $matiere->classrooms()->detach();
+        $matiere->evaluations()->delete();
+        $matiere->delete();
         return response()->json(null, 204);
     }
 

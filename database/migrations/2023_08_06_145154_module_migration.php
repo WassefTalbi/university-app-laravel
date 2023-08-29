@@ -20,9 +20,8 @@ return new class extends Migration
             $table->integer('credit');
             $table->string('nature');
             $table->float('coefficient');
-            $table->unsignedBigInteger('specialite_id');
-            $table->foreign('specialite_id')->references('id')->on('specialites')->onDelete('cascade');
-           
+            $table->unsignedBigInteger('degre_id');
+            $table->foreign('degre_id')->references('id')->on('degres')->onDelete('cascade');
             $table->timestamps();
         });
     }
