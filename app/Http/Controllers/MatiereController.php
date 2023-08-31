@@ -74,8 +74,8 @@ class MatiereController extends Controller
      */
     public function show($id)
     {
-        $matieres = Matiere::findOrFail($id);
-        return response()->json($matieres);
+        $matiere = Matiere::findOrFail($id);
+        return response()->json($matiere);
     }
 
 
@@ -136,6 +136,23 @@ class MatiereController extends Controller
         $matiere->evaluations()->delete();
         $matiere->delete();
         return response()->json(null, 204);
+    }
+  
+/**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showMatiereEvalutions($id)
+    {    
+       $matiere = Matiere::findOrFail($id);
+        if (!$matiere) {
+            return response()->json(['error' => 'Matiere not found'], 404);
+        }
+        $matiereEvaluations = $matiere->load('evaluations');
+       
+        return response()->json($matiereEvaluations);
     }
 
     /**

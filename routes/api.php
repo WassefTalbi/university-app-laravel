@@ -37,6 +37,7 @@ Route::get('/users', function (Request $request) {
 //route for etudiant
 Route::post('etudiants', [EtudiantController::class, 'store'])->name('etudiants.store');
 Route::get('etudiants', [EtudiantController::class, 'index'])->name('etudiants.index');
+Route::get('etudiants/etudiants-of-classroom/{idClass}', [EtudiantController::class, 'showEtudiantsByClass'])->name('etudiants.showEtudiantsByClass');
 Route::get('etudiants/{idEtudiant}', [EtudiantController::class, 'show'])->name('etudiants.show');
 Route::post('etudiants/{idEtudiant}', [EtudiantController::class, 'update'])->name('etudiants.update');
 Route::delete('etudiants/{idEtudiant}', [EtudiantController::class, 'destroy'])->name('etudiants.destroy');
@@ -44,6 +45,8 @@ Route::delete('etudiants/{idEtudiant}', [EtudiantController::class, 'destroy'])-
 //route for matiere
 Route::post('matieres/{idModule}', [MatiereController::class, 'store'])->name('matieres.store');
 Route::get('matieres', [MatiereController::class, 'index'])->name('matieres.index');
+Route::get('matieres/evaluations-of-matiere/{idMatiere}', [MatiereController::class, 'showMatiereEvalutions'])->name('matieres.showMatiereEvalutions');
+
 Route::get('matieres/{idMatiere}', [MatiereController::class, 'show'])->name('matieres.show');
 Route::get('matieres/notes-of-matiere/{idMatiere}', [MatiereController::class, 'showNotesOfMatiere'])->name('matieres.showNotesOfMatiere');
 Route::post('matieres-modifier/{id}', [MatiereController::class, 'update'])->name('matieres.update');
@@ -73,10 +76,12 @@ Route::delete('modules/{idModule}', [ModuleController::class, 'destroy'])->name(
 Route::get('specialites/generatePlanDEtude-of-specialite/{idDegre}', [SpecialiteController::class, 'generatePlanDEtude'])->name('specialites.generatePlanDEtude');
 Route::post('specialites', [SpecialiteController::class, 'store'])->name('specialites.store');
 Route::get('specialites', [SpecialiteController::class, 'index'])->name('specialites.index');
+Route::get('specialites/showSpecialitiesGroupByNiveau', [SpecialiteController::class, 'showSpecialitiesGroupByNiveau'])->name('specialites.showSpecialitiesGroupByNiveau');
 Route::get('specialites/{idSpecialite}', [SpecialiteController::class, 'show'])->name('specialites.show');
 Route::get('specialites/modules-of-specialite/{idSpecialite}', [SpecialiteController::class, 'showModulesOfSpecialite'])->name('specialites.showModulesOfSpecialite');
 Route::put('specialites/{idSpecialite}', [SpecialiteController::class, 'update'])->name('specialites.update');
 Route::delete('specialites/{idSpecialite}', [SpecialiteController::class, 'destroy'])->name('specialites.destroy');
+
 
 
 //route for classroom

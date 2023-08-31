@@ -22,6 +22,19 @@ class SpecialiteController extends Controller
         $specialites = Specialite::with("degres")->get();
         return response()->json($specialites);
     }
+ /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function showSpecialitiesGroupByNiveau()
+    {
+        $specialites = Specialite::select('specialites.id','specialites.type', 'degres.niveau')
+        ->leftJoin('degres', 'specialites.id', '=', 'degres.specialite_id')
+        ->distinct()
+        ->get();
+        return response()->json($specialites);
+    }
 
 
 

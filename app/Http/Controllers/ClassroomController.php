@@ -39,18 +39,33 @@ class ClassroomController extends Controller
 
             'ref' => 'required|string|max:255',
             'anneScolaire' => 'required|string|max:255',
-          
+            'specialityId'=> 'required|int|max:255',
+            'degreNiveau'=> 'required|int|max:255',
         ]);
         $department = Department::find($idDepartment);
-
+       
         if (!$department) {
             // Handle case when etudiant or matiere is not found
             return response()->json(['error' => 'department not found'], 404);
         }
-        $classroomData = $request;
-        $classroomData['department_id'] = $idDepartment;
-        $classroom = Classroom::create($classroomData->all());
-        return response()->json($request, 201);
+        $specialityId = $request->input('specialityId');
+         $degreNiveau = $request->input('degreNiveau');
+
+        $specialite = Specialite::find($specialityId);
+        //get subjects list of this speciality
+        $matieres = $specialite->degres
+        ->where('niveau', $degreNiveau)
+        ->flatMap->modules->flatMap->matieres
+        ->pluck('id'); // Pluck the IDs from the matieres collection
+        
+       // $matieres=$specialite->load('degres.modules.matieres')->where('degres.niveau='$degreNiveau);
+        $classroomData = $request->except(['specialityId', 'degreNiveau']);
+         $classroomData['department_id'] = $idDepartment;
+        $classroom = Classroom::create($classroomData);
+        $this->affectMatiereToClass($classroom->id, $matieres);
+
+       return response()->json(['message' => 'Classroom created and subjects assigned successfully'], 201);
+        //return response()->json($matieres, 201);
     }
 
     /**
@@ -110,27 +125,12 @@ class ClassroomController extends Controller
         return response()->json($classroom);
     }
     
-    /**
-     * Display the specified resource.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function affectMatiereToClass(Request $request)
+    public function affectMatiereToClass($classroomId, $matiereIds)
     {
-        //  Validate the request data as needed
-        $request->validate([
-            'classroom_id' => 'required|exists:classrooms,id',
-            'matiere_id' => 'required|array',
-            'matiere_id.*' => 'exists:matieres,id',
-        ]);
-
-        $classroom = Classroom::findOrFail($request->input('classroom_id'));
-        $matiereIds = $request->input('matiere_id');
-
+        $classroom = Classroom::findOrFail($classroomId);
+    
         // Sync the matieres with the classroom
         $classroom->matieres()->sync($matiereIds);
-
-        return response()->json(['message' => 'Subjects assigned to classroom successfully']);
-}
+    }
+    
 }

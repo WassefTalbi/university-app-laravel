@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Classroom;
 use App\Models\Etudiant;
+use App\Models\Matiere;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -124,4 +126,20 @@ class EtudiantController extends Controller
         $etudiant->delete();
         return response()->json(null, 204);
     }
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showEtudiantsByClass($idClass)
+    {
+        $refClass=Classroom::find($idClass)->value("ref");
+         $etudiants = Etudiant::where('current_classroom', $refClass)
+         ->get();
+      
+        return response()->json($etudiants);
+    }
+    
+
 }
