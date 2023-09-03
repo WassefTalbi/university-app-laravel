@@ -140,6 +140,57 @@ class EtudiantController extends Controller
       
         return response()->json($etudiants);
     }
+
+
+    public function getStudentsWithGrades($idClass, $idMatiere)
+    {
+        $refClass = Classroom::find($idClass)->value("ref");
     
+        $etudiants = Etudiant::where('current_classroom', $refClass)
+            ->with(['notes' => function ($query) use ($idMatiere) {
+                $query->where('matiere_id', $idMatiere);
+            }])
+            ->get();
+    
+        // Retrieve all evaluations for the specified matiere
+        $matiere = Matiere::findOrFail($idMatiere);
+        $evaluations = $matiere->evaluations->pluck('name');
+    
+        $formattedData = $etudiants->map(function ($etudiant) use ($evaluations) {
+            $grades = $etudiant->notes->mapWithKeys(function ($note) use ($evaluations) {
+                $evaluation = $note->matiere->evaluations
+                    ->where('name', $note->name)
+                    ->first();
+    
+                $evaluationName = $evaluation ? $evaluation->name : $note->name;
+    
+                return [$evaluationName => $note->score];
+            });
+    
+            // Create a grades array with all evaluation names and null values
+            $allGrades = array_fill_keys($evaluations->toArray(), null);
+    
+            // Merge the actual grades with the allGrades array
+            $mergedGrades = array_merge($allGrades, $grades->toArray());
+    
+            return [
+                'id' => $etudiant->id,
+                'cin' =>$etudiant->cin,
+                'name' => $etudiant->firstname . ' ' . $etudiant->lastname,
+                'grades' => $mergedGrades,
+            ];
+        });
+    
+        return response()->json($formattedData);
+    }
+    
+
+    
+
+    
+
+    
+    
+
 
 }

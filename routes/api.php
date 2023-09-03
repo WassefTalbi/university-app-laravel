@@ -35,6 +35,7 @@ Route::get('/users', function (Request $request) {
 });
 
 //route for etudiant
+Route::get('/students-with-grades/{idClass}/{idMatiere}', [EtudiantController::class, 'getStudentsWithGrades'])->name('etudiants.getStudentsWithGrades');
 Route::post('etudiants', [EtudiantController::class, 'store'])->name('etudiants.store');
 Route::get('etudiants', [EtudiantController::class, 'index'])->name('etudiants.index');
 Route::get('etudiants/etudiants-of-classroom/{idClass}', [EtudiantController::class, 'showEtudiantsByClass'])->name('etudiants.showEtudiantsByClass');
@@ -55,6 +56,11 @@ Route::get('matieres/notes-of-matiere-of-classroom/{idMatiere}', [MatiereControl
 
 
 //route for note
+// routes/api.php
+
+Route::post('updateOrCreateNote/{idEtudiant}', [MatiereController::class, 'updateOrCreate'])->name('notes.updateOrCreate');
+
+
 Route::post('notes/noted/{idMatiere}/{idEtudiant}', [NoteController::class, 'noted'])->name('notes.noted');
 Route::get('notes', [NoteController::class, 'index'])->name('notes.index');
 Route::get('notes/generate-note-file/{idEtudiant}', [NoteController::class, 'generateEtudiantNotesFile'])->name('notes.generateEtudiantNotesFile');

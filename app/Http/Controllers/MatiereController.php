@@ -182,6 +182,36 @@ class MatiereController extends Controller
         return response()->json($notes, 200);
     }
 
+  
+
+    public function updateOrCreate(Request $request, $id)
+{
+    // Validate the request data
+    $request->validate([
+        'evaluation_name' => 'required|string',
+        'matiere_id' => 'required|exists:matieres,id', // Use the matiere ID instead of name
+        'value' => 'required|numeric|min:0|max:20', // Adjust validation rules as needed
+    ]);
+
+    // Find an existing note or create a new one
+    $note = Note::firstOrNew([
+        'etudiant_id' => $id,
+        'matiere_id' => $request->matiere_id,
+        'name' => $request->evaluation_name,
+    ]);
+
+    // Update the score with the new value
+    $note->score = $request->value;
+
+    // Save the note (this will either update an existing note or create a new one)
+    $note->save();
+
+    return response()->json(['message' => 'Note updated or created successfully'], 200);
+}
+
+    
+    
+
     public function getImage($filename)
     {
         $imagePath = "public/uploads/{$filename}";
@@ -195,4 +225,5 @@ class MatiereController extends Controller
 
         return response($image)->header('Content-Type', $mimeType);
     }
+
 }

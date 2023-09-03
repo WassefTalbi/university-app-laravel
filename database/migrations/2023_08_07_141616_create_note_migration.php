@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('notes', function (Blueprint $table) {
             $table->id();
             $table->float('score');
-            $table->float('name');
+            $table->string('name');
             $table->unsignedBigInteger('etudiant_id');
             $table->foreign('etudiant_id')->references('id')->on('etudiants')->onDelete('cascade');
             $table->unsignedBigInteger('matiere_id');
